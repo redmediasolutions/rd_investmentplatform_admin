@@ -95,9 +95,9 @@ class _SidenavbarState extends State<Sidenavbar> {
             _item(context, route: '/bondlistings', icon: Icons.trending_up_rounded, label: "Bond Listings"),
             _item(context, route: '/investors', icon: Icons.people_alt_outlined, label: "Investors"),
             _item(context, route: '/payouts', icon: Icons.attach_money, label: "Payouts"),
-            _item(context, route: '/supportTickets', icon: Icons.support, label: "Support Tickets"),
-            _item(context, route: '/reports', icon: Icons.content_paste_sharp, label: "Reports"),
-            _item(context, route: '/settings', icon: Icons.settings, label: "Settings"),
+            // _item(context, route: '/supportTickets', icon: Icons.support, label: "Support Tickets"),
+            // _item(context, route: '/reports', icon: Icons.content_paste_sharp, label: "Reports"),
+            // _item(context, route: '/settings', icon: Icons.settings, label: "Settings"),
 
             const Spacer(),
 

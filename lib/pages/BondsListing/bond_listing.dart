@@ -20,9 +20,7 @@ class _BondListingState extends State<BondListing> {
   @override
   void initState() {
     super.initState();
-    _controller.addListener(() {
-      if (mounted) setState(() {});
-    });
+    _controller.addListener(() { if (mounted) setState(() {}); });
     _controller.fetchBonds();
   }
 
@@ -35,6 +33,7 @@ class _BondListingState extends State<BondListing> {
   void _openAddForm({BondModel? bond}) {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (_) => BondAddForm(
         existingBond: bond?.toJson(),
         onSubmit: (data) async {
@@ -52,29 +51,24 @@ class _BondListingState extends State<BondListing> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: const Text('Delete Bond'),
-        content: Text('Are you sure you want to delete "$name"?'),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Confirm Deletion', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Text('Are you sure you want to permanently remove "$name" from the listings?'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Keep it')),
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(context);
               await _controller.deleteBond(id);
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('Bond deleted'),
-                      backgroundColor: Colors.red),
+                  const SnackBar(content: Text('Bond removed successfully'), backgroundColor: Colors.black87),
                 );
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child:
-                const Text('Delete', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, foregroundColor: Colors.white),
+            child: const Text('Yes, Delete'),
           ),
         ],
       ),
@@ -84,51 +78,40 @@ class _BondListingState extends State<BondListing> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundLight,
-      appBar: AppBar(
-        backgroundColor: backgroundLight,
-        elevation: 0,
-        toolbarHeight: 90,
-        centerTitle: false,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Bond Listings',
-              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: textDark,
-                  ),
-            ),
-            const SizedBox(height: 4),
-            Row(
+      backgroundColor: const Color(0xFFF9FAFB),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(100),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          decoration: const BoxDecoration(color: Colors.white),
+          child: SafeArea(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Manage all bond investment products',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyLarge
-                      ?.copyWith(color: textGrey),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Bond Listings', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF111827))),
+                    const SizedBox(height: 4),
+                    Text('Manage and monitor your investment inventory', style: TextStyle(color: Colors.grey.shade500, fontSize: 14)),
+                  ],
                 ),
                 ElevatedButton.icon(
                   onPressed: () => _openAddForm(),
-                  icon: const Icon(Icons.add, size: 18),
-                  label: const Text('Add New Bond',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  icon: const Icon(Icons.add_rounded),
+                  label: const Text('Add New Bond'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF0D63D1),
                     foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     elevation: 0,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 16),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
               ],
             ),
-          ],
+          ),
         ),
       ),
       body: _buildBody(),
@@ -136,112 +119,69 @@ class _BondListingState extends State<BondListing> {
   }
 
   Widget _buildBody() {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(25),
-        child: Column(
-          children: [
-            // Search + Filter bar
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+    return Column(
+      children: [
+        // Refined Filter Header
+        Container(
+          margin: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 20)],
+          ),
+          child: Row(
+            children: [
+              Expanded(child: SearchbarWidget(onChanged: _controller.search)),
+              const SizedBox(width: 16),
+              Container(
+                width: 180,
+                decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(12)),
+                child: DropdownButtonFormField<String>(
+                  value: _selectedStatus,
+                  decoration: const InputDecoration(border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 16)),
+                  items: const [
+                    DropdownMenuItem(value: 'all', child: Text('All Status')),
+                    DropdownMenuItem(value: 'active', child: Text('Active')),
+                    DropdownMenuItem(value: 'inactive', child: Text('Inactive')),
+                    DropdownMenuItem(value: 'closed', child: Text('Closed')),
+                  ],
+                  onChanged: (v) {
+                    setState(() => _selectedStatus = v!);
+                    _controller.filterByStatus(v!);
+                  },
+                ),
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: SearchbarWidget(
-                      onChanged: _controller.search,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  SizedBox(
-                    width: 200,
-                    child: DropdownButtonFormField<String>(
-                      value: _selectedStatus,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: const Color(0xFFF3F4F6),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide.none),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 12),
-                      ),
-                      items: const [
-                        DropdownMenuItem(value: 'all', child: Text('All Status')),
-                        DropdownMenuItem(value: 'active', child: Text('Active')),
-                        DropdownMenuItem(value: 'inactive', child: Text('Inactive')),
-                        DropdownMenuItem(value: 'closed', child: Text('Closed')),
+            ],
+          ),
+        ),
+
+        // Content
+        Expanded(
+          child: _controller.loading
+              ? const Center(child: CircularProgressIndicator(color: Color(0xFF0D63D1)))
+              : _controller.filteredBonds.isEmpty
+                  ? Center(child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.layers_clear_outlined, size: 64, color: Colors.grey.shade300),
+                        const SizedBox(height: 16),
+                        const Text('No records found', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
                       ],
-                      onChanged: (v) {
-                        setState(() => _selectedStatus = v!);
-                        _controller.filterByStatus(v!);
+                    ))
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      itemCount: _controller.filteredBonds.length,
+                      itemBuilder: (context, index) {
+                        return BondProjectCard(
+                          bond: _controller.filteredBonds[index],
+                          onEdit: () => _openAddForm(bond: _controller.filteredBonds[index]),
+                          onDelete: () => _confirmDelete(_controller.filteredBonds[index].id, _controller.filteredBonds[index].bondName),
+                        );
                       },
                     ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // List
-            if (_controller.loading)
-              const Padding(
-                padding: EdgeInsets.all(40),
-                child: Center(child: CircularProgressIndicator()),
-              )
-            else if (_controller.error != null)
-              Padding(
-                padding: const EdgeInsets.all(40),
-                child: Column(
-                  children: [
-                    const Icon(Icons.error_outline,
-                        size: 48, color: Colors.red),
-                    const SizedBox(height: 12),
-                    Text(_controller.error!),
-                    TextButton.icon(
-                      onPressed: _controller.fetchBonds,
-                      icon: const Icon(Icons.refresh),
-                      label: const Text('Retry'),
-                    ),
-                  ],
-                ),
-              )
-            else if (_controller.filteredBonds.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(40),
-                child: Center(child: Text('No bonds found.')),
-              )
-            else
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _controller.filteredBonds.length,
-                itemBuilder: (context, index) {
-                  final bond = _controller.filteredBonds[index];
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: BondProjectCard(
-                      bond: bond,
-                      onEdit: () => _openAddForm(bond: bond),
-                      onDelete: () => _confirmDelete(bond.id, bond.bondName),
-                    ),
-                  );
-                },
-              ),
-          ],
         ),
-      ),
+      ],
     );
   }
 }

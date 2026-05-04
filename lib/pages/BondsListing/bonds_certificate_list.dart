@@ -1,7 +1,6 @@
 import 'package:care_kapital_webapp_admin/pages/BondsListing/bondlisting_models.dart';
 import 'package:flutter/material.dart';
 
-
 class BondProjectCard extends StatelessWidget {
   final BondModel bond;
   final VoidCallback onEdit;
@@ -16,227 +15,139 @@ class BondProjectCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Color textDark = Color(0xFF1F2937);
+    const Color textDark = Color(0xFF111827);
     const Color textGrey = Color(0xFF6B7280);
-    const Color successGreen = Color(0xFF22C55E);
     const Color primaryBlue = Color(0xFF0D63D1);
 
-    final statusColor = bond.status == 'active' ? successGreen : Colors.grey;
-    final statusBg = bond.status == 'active'
-        ? const Color(0xFFDCFCE7)
-        : const Color(0xFFF3F4F6);
-
-    final riskColor = bond.riskLevel == 'low'
-        ? const Color(0xFF0369A1)
-        : bond.riskLevel == 'medium'
-            ? const Color(0xFFB45309)
-            : Colors.red;
-    final riskBg = bond.riskLevel == 'low'
-        ? const Color(0xFFE0F2FE)
-        : bond.riskLevel == 'medium'
-            ? const Color(0xFFFEF3C7)
-            : const Color(0xFFFFE4E6);
+    // Status Styling logic
+    final statusColor = bond.status == 'active' ? const Color(0xFF059669) : const Color(0xFFD1D5DB);
+    final statusBg = bond.status == 'active' ? const Color(0xFFECFDF5) : const Color(0xFFF9FAFB);
 
     String _fmt(double amount) {
-      if (amount >= 10000000) return '₹${(amount / 10000000).toStringAsFixed(1)}Cr';
-      if (amount >= 100000) return '₹${(amount / 100000).toStringAsFixed(1)}L';
+      if (amount >= 10000000) return '₹${(amount / 10000000).toStringAsFixed(1)} Cr';
+      if (amount >= 100000) return '₹${(amount / 100000).toStringAsFixed(1)} L';
       return '₹${amount.toStringAsFixed(0)}';
     }
 
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
+      margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 24, offset: const Offset(0, 8)),
         ],
+        border: Border.all(color: Colors.grey.shade100),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Top row
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            bond.bondName,
-                            style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: textDark),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        _tag(bond.status[0].toUpperCase() + bond.status.substring(1),
-                            statusBg, statusColor),
-                        const SizedBox(width: 8),
-                        _tag('${bond.riskLevel.toUpperCase()} Risk', riskBg,
-                            riskColor),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(bond.issuer,
-                        style: const TextStyle(color: textGrey, fontSize: 14)),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 12),
-              // Action buttons
-              Column(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Stack(
+          children: [
+            // Side Accent
+            Positioned(left: 0, top: 0, bottom: 0, child: Container(width: 6, color: statusColor)),
+            
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
                 children: [
-                  _actionBtn(Icons.visibility_outlined, 'View', textDark,
-                      onTap: () {}),
-                  const SizedBox(height: 8),
-                  _actionBtn(Icons.edit_outlined, 'Edit', textDark,
-                      onTap: onEdit),
-                  const SizedBox(height: 8),
-                  _actionBtn(Icons.delete_outline, '', Colors.red,
-                      isDelete: true, onTap: onDelete),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Avatar/Icon
+                      Container(
+                        height: 56, width: 56,
+                        decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(14)),
+                        child: const Icon(Icons.account_balance_wallet_rounded, color: primaryBlue, size: 28),
+                      ),
+                      const SizedBox(width: 20),
+                      
+                      // Content
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(bond.bondName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textDark)),
+                                const SizedBox(width: 12),
+                                _tag(bond.status.toUpperCase(), statusBg, statusColor),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text('Issuer: ${bond.issuer}', style: const TextStyle(color: textGrey, fontSize: 13, fontWeight: FontWeight.w500)),
+                          ],
+                        ),
+                      ),
+                      
+                      // Actions
+                      Row(
+                        children: [
+                          _iconBtn(Icons.edit_note_rounded, Colors.black87, onEdit),
+                          const SizedBox(width: 8),
+                          _iconBtn(Icons.delete_sweep_rounded, Colors.redAccent, onDelete),
+                        ],
+                      ),
+                    ],
+                  ),
+                  
+                  const Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Divider(height: 1, color: Color(0xFFF3F4F6))),
+                  
+                  // Stats Grid
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _stat('Return', '${bond.interestRate}%', isHighlight: true),
+                      _stat('Min. Investment', _fmt(bond.minInvestment)),
+                      _stat('Duration', '${bond.maturityPeriod}m'),
+                      _stat('Risk Profile', bond.riskLevel.toUpperCase(), 
+                          color: bond.riskLevel == 'high' ? Colors.orange : primaryBlue),
+                      _stat('Listing Date', bond.listingDate),
+                    ],
+                  ),
                 ],
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // KPI row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _kpi('Interest Rate', '${bond.interestRate}% p.a.', successGreen),
-              _kpi('Min Investment', _fmt(bond.minInvestment), textDark),
-              _kpi('Maturity', '${bond.maturityPeriod} months', textDark),
-              _kpi('Available', _fmt(bond.availableAmount), textDark),
-              const SizedBox(width: 60),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // Footer
-          Row(
-            children: [
-              _iconDetail(Icons.calendar_today_outlined,
-                  'Listed: ${bond.listingDate}'),
-              const SizedBox(width: 16),
-              if (bond.closingDate != null)
-                _iconDetail(Icons.calendar_month_outlined,
-                    'Closes: ${bond.closingDate}'),
-              const SizedBox(width: 16),
-              _iconDetail(Icons.trending_up,
-                  '${bond.payoutFrequency[0].toUpperCase()}${bond.payoutFrequency.substring(1)} payouts'),
-            ],
-          ),
-          const SizedBox(height: 20),
-
-          // Progress bar
-          // Column(
-          //   crossAxisAlignment: CrossAxisAlignment.start,
-          //   children: [
-          //     Row(
-          //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //       children: [
-          //         const Text('Issue Progress',
-          //             style: TextStyle(
-          //                 color: textGrey,
-          //                 fontSize: 13,
-          //                 fontWeight: FontWeight.w500)),
-          //         Text('${(bond.progressPercent * 100).toStringAsFixed(1)}%',
-          //             style: const TextStyle(
-          //                 color: textDark,
-          //                 fontSize: 13,
-          //                 fontWeight: FontWeight.bold)),
-          //       ],
-          //     ),
-          //     const SizedBox(height: 8),
-          //     ClipRRect(
-          //       borderRadius: BorderRadius.circular(4),
-          //       child: LinearProgressIndicator(
-          //         value: bond.progressPercent,
-          //         minHeight: 8,
-          //         backgroundColor: Colors.grey.shade200,
-          //         valueColor:
-          //             const AlwaysStoppedAnimation<Color>(primaryBlue),
-          //       ),
-          //     ),
-          //   ],
-          // ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _tag(String text, Color bg, Color color) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration:
-            BoxDecoration(color: bg, borderRadius: BorderRadius.circular(6)),
-        child: Text(text,
-            style: TextStyle(
-                color: color, fontSize: 12, fontWeight: FontWeight.bold)),
+        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(8), border: Border.all(color: color.withOpacity(0.1))),
+        child: Text(text, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
       );
 
-  Widget _kpi(String label, String value, Color valueColor) => Column(
+  Widget _stat(String label, String value, {bool isHighlight = false, Color? color}) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: const TextStyle(color: Color(0xFF6B7280), fontSize: 12)),
-          const SizedBox(height: 4),
-          Text(value,
-              style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: valueColor)),
+          Text(label, style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 0.3)),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: isHighlight ? const Color(0xFF059669) : (color ?? const Color(0xFF1F2937)),
+            ),
+          ),
         ],
       );
 
-  Widget _iconDetail(IconData icon, String text) => Row(
-        children: [
-          Icon(icon, size: 14, color: const Color(0xFF6B7280)),
-          const SizedBox(width: 4),
-          Text(text,
-              style:
-                  const TextStyle(color: Color(0xFF6B7280), fontSize: 12)),
-        ],
+  Widget _iconBtn(IconData icon, Color color, VoidCallback onTap) => Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade100),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 20, color: color),
+          ),
+        ),
       );
-
-  Widget _actionBtn(IconData icon, String label, Color color,
-      {bool isDelete = false, required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: isDelete ? 60 : 85,
-        height: 36,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 18, color: color),
-            if (label.isNotEmpty) ...[
-              const SizedBox(width: 6),
-              Text(label,
-                  style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: color)),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
 }
