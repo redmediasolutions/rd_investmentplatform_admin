@@ -1,6 +1,6 @@
-import 'package:care_kapital_webapp_admin/Theme/apptheme.dart';
 import 'package:care_kapital_webapp_admin/components/investor_kpiboxes.dart';
 import 'package:care_kapital_webapp_admin/components/searchbar.dart';
+import 'package:care_kapital_webapp_admin/pages/Investors/create_investor_dialog.dart';
 import 'package:care_kapital_webapp_admin/pages/Investors/investor_controller.dart';
 import 'package:care_kapital_webapp_admin/pages/Investors/userprofilecard.dart';
 import 'package:flutter/material.dart';
@@ -86,31 +86,73 @@ class _InvestorsState extends State<Investors> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB),
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(100),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          decoration: const BoxDecoration(color: Colors.white),
-          child: SafeArea(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Investor Directory',
-                        style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF111827))),
-                    const SizedBox(height: 4),
-                    Text('Manage accounts, verification, and investment portfolios',
-                        style: TextStyle(color: Colors.grey.shade500, fontSize: 14)),
-                  ],
+appBar: PreferredSize(
+  preferredSize: const Size.fromHeight(100),
+  child: Container(
+    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+    decoration: const BoxDecoration(color: Colors.white),
+    child: SafeArea(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('Investor Directory',
+                  style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF111827))),
+              const SizedBox(height: 4),
+              Text(
+                'Manage accounts, verification, and investment portfolios',
+                style:
+                    TextStyle(color: Colors.grey.shade500, fontSize: 14),
+              ),
+            ],
+          ),
+          // ← ADD INVESTOR BUTTON
+          ElevatedButton.icon(
+            onPressed: () {
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (_) => CreateInvestorDialog(
+                  onCreate: ({
+                    required String name,
+                    required String email,
+                    required String password,
+                    String? phone,
+                  }) async {
+                    await _controller.createInvestor(
+                      name: name,
+                      email: email,
+                      password: password,
+                      phone: phone,
+                    );
+                  },
                 ),
-              ],
+              );
+            },
+            icon: const Icon(Icons.person_add_rounded, size: 18),
+            label: const Text('Add Investor',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF0D63D1),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 20, vertical: 16),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
             ),
           ),
-        ),
+        ],
       ),
+    ),
+  ),
+),
       body: _controller.loading
           ? const Center(child: CircularProgressIndicator(color: Color(0xFF0D63D1)))
           : _controller.error != null
@@ -186,7 +228,7 @@ class _InvestorsState extends State<Investors> {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: DropdownButtonFormField<String>(
-                                  value: _selectedStatus,
+                                  initialValue: _selectedStatus,
                                   decoration: const InputDecoration(
                                     border: InputBorder.none,
                                     contentPadding: EdgeInsets.symmetric(horizontal: 16),

@@ -186,7 +186,7 @@ class _AssignBondPageState extends State<AssignBondPage> {
         labelText: 'Select Bond',
         border: OutlineInputBorder(),
       ),
-      value: selectedBond,
+      initialValue: selectedBond,
       items: bonds.map((bond) {
         return DropdownMenuItem(
           value: bond,

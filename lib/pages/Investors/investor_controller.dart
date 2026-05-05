@@ -10,37 +10,49 @@ class InvestorController extends ChangeNotifier {
   String? error;
   String searchQuery = '';
   String statusFilter = 'all';
+  bool _disposed = false;
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  void _notify() {
+    if (!_disposed) notifyListeners();
+  }
 
   Future<void> fetchInvestors() async {
     loading = true;
     error = null;
-    notifyListeners();
-
+    _notify();
     try {
       final data = await ApiService.getInvestors();
+      if (_disposed) return;
       allInvestors = (data['investors'] as List)
           .map((e) => InvestorModel.fromJson(e))
           .toList();
       summary = InvestorSummary.fromJson(data['summary']);
       _applyFilters();
     } catch (e) {
+      if (_disposed) return;
       error = e.toString();
     } finally {
       loading = false;
-      notifyListeners();
+      _notify();
     }
   }
 
   void search(String query) {
     searchQuery = query.toLowerCase();
     _applyFilters();
-    notifyListeners();
+    _notify();
   }
 
   void filterByStatus(String status) {
     statusFilter = status;
     _applyFilters();
-    notifyListeners();
+    _notify();
   }
 
   void _applyFilters() {
@@ -56,6 +68,24 @@ class InvestorController extends ChangeNotifier {
 
   Future<void> updateStatus(int id, String status) async {
     await ApiService.updateInvestorStatus(id, status);
+    if (_disposed) return;
     await fetchInvestors();
+  }
+
+  Future<Map<String, dynamic>> createInvestor({
+    required String name,
+    required String email,
+    required String password,
+    String? phone,
+  }) async {
+    final result = await ApiService.createInvestor(
+      name: name,
+      email: email,
+      password: password,
+      phone: phone,
+    );
+    if (_disposed) return result;
+    await fetchInvestors();
+    return result;
   }
 }

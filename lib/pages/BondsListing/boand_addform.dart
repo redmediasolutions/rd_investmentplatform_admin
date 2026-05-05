@@ -288,7 +288,7 @@ class _BondAddFormState extends State<BondAddForm> {
         Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF374151))),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: value,
+          initialValue: value,
           icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
           decoration: InputDecoration(
             filled: true,

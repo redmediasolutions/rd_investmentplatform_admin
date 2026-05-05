@@ -23,7 +23,7 @@ class BondProjectCard extends StatelessWidget {
     final statusColor = bond.status == 'active' ? const Color(0xFF059669) : const Color(0xFFD1D5DB);
     final statusBg = bond.status == 'active' ? const Color(0xFFECFDF5) : const Color(0xFFF9FAFB);
 
-    String _fmt(double amount) {
+    String fmt(double amount) {
       if (amount >= 10000000) return '₹${(amount / 10000000).toStringAsFixed(1)} Cr';
       if (amount >= 100000) return '₹${(amount / 100000).toStringAsFixed(1)} L';
       return '₹${amount.toStringAsFixed(0)}';
@@ -97,7 +97,7 @@ class BondProjectCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _stat('Return', '${bond.interestRate}%', isHighlight: true),
-                      _stat('Min. Investment', _fmt(bond.minInvestment)),
+                      _stat('Min. Investment', fmt(bond.minInvestment)),
                       _stat('Duration', '${bond.maturityPeriod}m'),
                       _stat('Risk Profile', bond.riskLevel.toUpperCase(), 
                           color: bond.riskLevel == 'high' ? Colors.orange : primaryBlue),

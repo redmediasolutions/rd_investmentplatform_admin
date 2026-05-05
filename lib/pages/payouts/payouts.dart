@@ -191,7 +191,7 @@ class _PayoutsState extends State<Payouts> {
                           width: 180,
                           decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(12)),
                           child: DropdownButtonFormField<String>(
-                            value: _selectedStatus,
+                            initialValue: _selectedStatus,
                             decoration: const InputDecoration(border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 16)),
                             items: const [
                               DropdownMenuItem(value: 'all', child: Text('All Types')),

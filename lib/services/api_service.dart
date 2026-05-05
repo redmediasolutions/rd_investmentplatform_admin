@@ -231,8 +231,8 @@ static Future<void> updateBondInvestment({
     Uri.parse('$baseUrl/admin/bond-investments/$id'),
     headers: await _headers(),
     body: jsonEncode({
-      if (amount != null) "investment_amount": amount,
-      if (status != null) "status": status,
+      "investment_amount": ?amount,
+      "status": ?status,
     }),
   );
 
@@ -275,5 +275,26 @@ static Future<Map<String, dynamic>> getInvestorBondInvestments(int userId) async
   }
 
   throw Exception('Failed to fetch investor investments');
+}
+
+static Future<Map<String, dynamic>> createInvestor({
+  required String name,
+  required String email,
+  required String password,
+  String? phone,
+}) async {
+  final response = await http.post(
+    Uri.parse('$baseUrl/admin/investors/create'),
+    headers: await _headers(),
+    body: jsonEncode({
+      'name': name,
+      'email': email,
+      'password': password,
+      if (phone != null && phone.isNotEmpty) 'phone': phone,
+    }),
+  );
+  if (response.statusCode == 200) return jsonDecode(response.body);
+  final error = jsonDecode(response.body);
+  throw Exception(error['message'] ?? 'Failed to create investor');
 }
 }
