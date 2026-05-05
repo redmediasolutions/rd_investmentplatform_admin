@@ -149,4 +149,131 @@ static Future<DashboardModel> getDashboard() async {
   }
   throw Exception('Failed to load dashboard (${response.statusCode})');
 }
+
+static Future<Map<String, dynamic>> assignBond({
+  required int userId,
+  required int bondId,
+  required double amount,
+  String? startDate,
+}) async {
+  final response = await http.post(
+    Uri.parse('$baseUrl/admin/bond-investments'),
+    headers: await _headers(),
+    body: jsonEncode({
+      "user_id": userId,
+      "bond_id": bondId,
+      "investment_amount": amount,
+      "start_date": startDate ??
+          DateTime.now().toIso8601String().split('T')[0],
+    }),
+  );
+
+  debugPrint('Assign Bond: ${response.body}');
+
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body);
+  }
+
+  throw Exception('Failed to assign bond: ${response.body}');
+}
+
+static Future<List<Map<String, dynamic>>> getUserBondInvestments() async {
+  final response = await http.get(
+    Uri.parse('$baseUrl/bond-investments'),
+    headers: await _headers(),
+  );
+
+  debugPrint('User Bond Investments: ${response.body}');
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    return List<Map<String, dynamic>>.from(data['investments']);
+  }
+
+  throw Exception('Failed to fetch investments');
+}
+
+static Future<List<Map<String, dynamic>>> getAllBondInvestments() async {
+  final response = await http.get(
+    Uri.parse('$baseUrl/admin/bond-investments'),
+    headers: await _headers(),
+  );
+
+  debugPrint('All Bond Investments: ${response.body}');
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    return List<Map<String, dynamic>>.from(data['investments']);
+  }
+
+  throw Exception('Failed to fetch all investments');
+}
+
+static Future<Map<String, dynamic>> getBondInvestment(int id) async {
+  final response = await http.get(
+    Uri.parse('$baseUrl/bond-investments/$id'),
+    headers: await _headers(),
+  );
+
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body)['investment'];
+  }
+
+  throw Exception('Failed to fetch investment');
+}
+
+static Future<void> updateBondInvestment({
+  required int id,
+  double? amount,
+  String? status,
+}) async {
+  final response = await http.put(
+    Uri.parse('$baseUrl/admin/bond-investments/$id'),
+    headers: await _headers(),
+    body: jsonEncode({
+      if (amount != null) "investment_amount": amount,
+      if (status != null) "status": status,
+    }),
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception('Failed to update: ${response.body}');
+  }
+}
+
+static Future<void> deleteBondInvestment(int id) async {
+  final response = await http.delete(
+    Uri.parse('$baseUrl/admin/bond-investments/$id'),
+    headers: await _headers(),
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception('Failed to delete: ${response.body}');
+  }
+}
+
+static Future<List<BondModel>> getActiveBonds() async {
+  final bonds = await getBonds();
+  return bonds.where((b) => b.status == 'active').toList();
+}
+
+static double getAvailableAmount(Map bond) {
+  return double.parse(bond['total_issue_size'].toString()) -
+      double.parse(bond['amount_raised'].toString());
+}
+
+static Future<Map<String, dynamic>> getInvestorBondInvestments(int userId) async {
+  final response = await http.get(
+    Uri.parse('$baseUrl/admin/investors/$userId/bond-investments'),
+    headers: await _headers(),
+  );
+
+  debugPrint('Investor Investments: ${response.body}');
+
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body);
+  }
+
+  throw Exception('Failed to fetch investor investments');
+}
 }
