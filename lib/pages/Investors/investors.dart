@@ -208,7 +208,7 @@ appBar: PreferredSize(
                         const SizedBox(height: 24),
 
                         // Search + Filter Bar
-                        Container(
+                        /*Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -248,7 +248,7 @@ appBar: PreferredSize(
                               ),
                             ],
                           ),
-                        ),
+                        ),*/
                         const SizedBox(height: 24),
 
                         // Investor List

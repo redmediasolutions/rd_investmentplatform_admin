@@ -237,23 +237,22 @@ Widget _assignBondButton(BuildContext context) {
         ? 'Activate user to assign bonds'
         : 'Assign bonds to this investor',
     child: ElevatedButton.icon(
-      onPressed: isDisabled
-          ? null
-          : () async {
-              HapticFeedback.lightImpact();
+     onPressed: isDisabled
+    ? null
+    : () async {
+        HapticFeedback.lightImpact();
 
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => AssignBondPage(investor: investor),
-                ),
-              );
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => AssignBondPage(investor: investor),
+          ),
+        );
 
-              // Optional: refresh parent after assignment
-              if (result == true && onStatusChange != null) {
-                onStatusChange!();
-              }
-            },
+        // Optional:
+        // if you want refresh after assignment,
+        // create a separate refresh callback
+      },
       icon: const Icon(Icons.add_chart_rounded, size: 18),
       label: const Text(
         'Assign Bonds',

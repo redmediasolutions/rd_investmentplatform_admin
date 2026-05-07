@@ -23,7 +23,7 @@ class ShellLayout extends StatelessWidget {
 
 class _Sidebar extends StatelessWidget {
   final List<_NavItem> _items = const [
-    _NavItem(icon: Icons.grid_view_rounded, label: 'Dashboard', path: '/dashboard'),
+    //_NavItem(icon: Icons.grid_view_rounded, label: 'Dashboard', path: '/dashboard'),
     _NavItem(icon: Icons.trending_up, label: 'Bond Listings', path: '/bondlistings'),
     _NavItem(icon: Icons.people_outline, label: 'Investors', path: '/investors'),
     _NavItem(icon: Icons.attach_money_outlined, label: 'Payouts', path: '/payouts'),
