@@ -76,7 +76,7 @@ GoRouter createRouter() {
             pageBuilder: (context, state) =>
                 NoTransitionPage(
               key: state.pageKey,
-              child: const investors(),
+              child: const Investors(),
             ),
           ),
 
