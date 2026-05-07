@@ -1,8 +1,8 @@
 import 'package:care_kapital_webapp_admin/components/investor_kpiboxes.dart';
 import 'package:care_kapital_webapp_admin/components/searchbar.dart';
-import 'package:care_kapital_webapp_admin/pages/Investors/create_investor_dialog.dart';
-import 'package:care_kapital_webapp_admin/pages/Investors/investor_controller.dart';
-import 'package:care_kapital_webapp_admin/pages/Investors/userprofilecard.dart';
+import 'package:care_kapital_webapp_admin/pages/investors/create_investor_dialog.dart';
+import 'package:care_kapital_webapp_admin/pages/investors/investor_controller.dart';
+import 'package:care_kapital_webapp_admin/pages/investors/userprofilecard.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
