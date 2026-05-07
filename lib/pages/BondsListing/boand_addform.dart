@@ -187,9 +187,12 @@ class _BondAddFormState extends State<BondAddForm> {
                               (v) => setState(() => _riskLevel = v!))),
                       _row(
                           _field('Market Category', _category, hint: 'Corporate / Govt'),
-                          _dropdown('Trading Status', _status,
-                              ['active', 'inactive', 'closed'],
-                              (v) => setState(() => _status = v!))),
+                          _dropdown(
+  'Trading Status',
+  _status,
+  ['active', 'inactive'],
+  (v) => setState(() => _status = v!),
+)),
                       _row(
                           _field('Total Issue (₹)', _totalIssueSize, isNumber: true, hint: '1,00,00,000'),
                           _datePicker('Live Date', _listingDate)),

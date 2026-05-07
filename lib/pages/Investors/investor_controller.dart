@@ -23,25 +23,50 @@ class InvestorController extends ChangeNotifier {
   }
 
   Future<void> fetchInvestors() async {
-    loading = true;
-    error = null;
-    _notify();
-    try {
-      final data = await ApiService.getInvestors();
-      if (_disposed) return;
-      allInvestors = (data['investors'] as List)
-          .map((e) => InvestorModel.fromJson(e))
-          .toList();
-      summary = InvestorSummary.fromJson(data['summary']);
-      _applyFilters();
-    } catch (e) {
-      if (_disposed) return;
-      error = e.toString();
-    } finally {
-      loading = false;
-      _notify();
+  loading = true;
+  error = null;
+  notifyListeners();
+
+  try {
+    final data = await ApiService.getInvestors();
+
+    // SAFE INVESTOR PARSING
+    final investorsJson = data['investors'] as List? ?? [];
+
+    allInvestors = investorsJson
+        .map((e) => InvestorModel.fromJson(e))
+        .toList();
+
+    // SAFE SUMMARY PARSING
+    final summaryJson = data['summary'];
+
+    if (summaryJson != null) {
+      summary = InvestorSummary.fromJson(summaryJson);
+    } else {
+      // FALLBACK SUMMARY
+      final total = allInvestors.length;
+      final active =
+          allInvestors.where((e) => e.status == 'active').length;
+      final inactive =
+          allInvestors.where((e) => e.status != 'active').length;
+
+      summary = InvestorSummary(
+        total: total,
+        active: active,
+        inactive: inactive,
+      );
     }
+
+    _applyFilters();
+
+  } catch (e) {
+    error = e.toString();
+    debugPrint('Fetch investors error: $e');
+  } finally {
+    loading = false;
+    notifyListeners();
   }
+}
 
   void search(String query) {
     searchQuery = query.toLowerCase();

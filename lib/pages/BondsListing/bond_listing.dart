@@ -46,34 +46,83 @@ class _BondListingState extends State<BondListing> {
     );
   }
 
+  
   void _confirmDelete(int id, String name) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Confirm Deletion', style: TextStyle(fontWeight: FontWeight.bold)),
-        content: Text('Are you sure you want to permanently remove "$name" from the listings?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Keep it')),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await _controller.deleteBond(id);
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Bond removed successfully'), backgroundColor: Colors.black87),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, foregroundColor: Colors.white),
-            child: const Text('Yes, Delete'),
-          ),
-        ],
-      ),
-    );
-  }
+  showDialog(
+    context: context,
 
+    builder: (dialogContext) => AlertDialog(
+      backgroundColor: Colors.white,
+
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+
+      title: const Text(
+        'Confirm Deletion',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+
+      content: Text(
+        'Are you sure you want to permanently remove "$name" from the listings?',
+      ),
+
+      actions: [
+
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(),
+          child: const Text('Keep it'),
+        ),
+
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.redAccent,
+            foregroundColor: Colors.white,
+          ),
+
+          onPressed: () async {
+
+            // Close ONLY dialog
+            Navigator.of(dialogContext).pop();
+
+            try {
+
+              await _controller.deleteBond(id);
+
+              if (!mounted) return;
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    'Bond removed successfully',
+                  ),
+                  backgroundColor: Colors.black87,
+                ),
+              );
+
+            } catch (e) {
+
+              if (!mounted) return;
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Delete failed: $e',
+                  ),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          },
+
+          child: const Text('Yes, Delete'),
+        ),
+      ],
+    ),
+  );
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -120,8 +169,9 @@ class _BondListingState extends State<BondListing> {
   Widget _buildBody() {
     return Column(
       children: [
+        const SizedBox(height: 24),
         // Refined Filter Header
-        Container(
+        /*Container(
           margin: const EdgeInsets.all(24),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -153,7 +203,7 @@ class _BondListingState extends State<BondListing> {
               ),
             ],
           ),
-        ),
+        ),*/
 
         // Content
         Expanded(

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
@@ -12,8 +14,10 @@ class AdminLoginPage extends StatefulWidget {
 class _AdminLoginPageState extends State<AdminLoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  bool loading = false;
+
   final auth = FirebaseAuth.instance;
+
+  bool loading = false;
 
   void _safeSetState(VoidCallback fn) {
     if (mounted) setState(fn);
@@ -21,8 +25,12 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
 
   void _showError(String msg) {
     if (!mounted) return;
+
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg), backgroundColor: Colors.red),
+      SnackBar(
+        content: Text(msg),
+        backgroundColor: Colors.red,
+      ),
     );
   }
 
@@ -34,46 +42,73 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
     }
 
     _safeSetState(() => loading = true);
+
     try {
-      await auth.signInWithEmailAndPassword(
+      // Firebase Login
+      final cred = await auth.signInWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-      await _syncUser();
-    } on FirebaseAuthException catch (e) {
-      _safeSetState(() => loading = false);
-      _showError(_friendlyError(e.code));
-    } catch (e) {
-      _safeSetState(() => loading = false);
-      _showError('Login failed: $e');
-    }
-  }
 
-  Future<void> _syncUser() async {
-    try {
-      final user = auth.currentUser;
-      if (user == null) {
-        _safeSetState(() => loading = false);
-        return;
-      }
+      final token = await cred.user!.getIdToken();
 
-      final token = await user.getIdToken();
-
-      final response = await http.post(
-        Uri.parse('https://api.ip.rd-crm.in/auth/sync-user'),
-        headers: {'Authorization': 'Bearer $token'},
+      // Validate backend access
+      final response = await http.get(
+        Uri.parse('https://api.ip.rd-crm.in/profile'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
       );
 
       if (!mounted) return;
-      _safeSetState(() => loading = false);
 
       if (response.statusCode != 200) {
-        _showError('Sync failed (${response.statusCode})');
+        await auth.signOut();
+
+        _safeSetState(() => loading = false);
+
+        _showError('Access denied');
+
+        return;
       }
-      // Router will handle navigation via auth stream
-    } catch (e) {
+
+      final data = jsonDecode(response.body);
+
+      final user = data['user'];
+
+      final role = user['role'];
+
+      // Allow ONLY admins
+      if (role != 'tenant_admin' &&
+          role != 'super_admin') {
+
+        await auth.signOut();
+
+        _safeSetState(() => loading = false);
+
+        _showError(
+          'You are not authorized to access admin panel',
+        );
+
+        return;
+      }
+
+      // Success
       _safeSetState(() => loading = false);
-      debugPrint('Sync error: $e');
+
+      // Router/auth stream will continue
+
+    } on FirebaseAuthException catch (e) {
+
+      _safeSetState(() => loading = false);
+
+      _showError(_friendlyError(e.code));
+
+    } catch (e) {
+
+      _safeSetState(() => loading = false);
+
+      _showError('Login failed: $e');
     }
   }
 
@@ -81,14 +116,18 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
     switch (code) {
       case 'user-not-found':
         return 'No account found with this email';
+
       case 'wrong-password':
         return 'Incorrect password';
+
       case 'invalid-email':
         return 'Invalid email address';
+
       case 'too-many-requests':
         return 'Too many attempts. Try again later';
+
       default:
-        return 'Login failed. Please try again';
+        return 'Login failed';
     }
   }
 
@@ -120,69 +159,96 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
-              // Logo / Brand
+
               Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: const Color(0xFF0D63D1),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius:
+                          BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.trending_up,
-                        color: Colors.white, size: 24),
+                    child: const Icon(
+                      Icons.trending_up,
+                      color: Colors.white,
+                      size: 24,
+                    ),
                   ),
+
                   const SizedBox(width: 12),
+
                   const Text(
                     'CareKapital',
                     style: TextStyle(
-                        fontSize: 22, fontWeight: FontWeight.bold),
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
+
               const SizedBox(height: 8),
+
               const Text(
                 'Admin Portal',
                 style: TextStyle(
-                    color: Color(0xFF0D63D1),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600),
+                  color: Color(0xFF0D63D1),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
+
               const SizedBox(height: 32),
 
-              const Text('Email',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 14)),
+              const Text(
+                'Email',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+
               const SizedBox(height: 8),
+
               TextField(
                 controller: emailController,
-                keyboardType: TextInputType.emailAddress,
+                keyboardType:
+                    TextInputType.emailAddress,
                 decoration: InputDecoration(
                   hintText: 'admin@example.com',
                   filled: true,
-                  fillColor: const Color(0xFFF9FAFB),
+                  fillColor:
+                      const Color(0xFFF9FAFB),
+
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide:
-                        BorderSide(color: Colors.grey.shade200),
+                    borderRadius:
+                        BorderRadius.circular(10),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide:
-                        BorderSide(color: Colors.grey.shade200),
+
+                  contentPadding:
+                      const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
                   ),
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 14),
                 ),
               ),
+
               const SizedBox(height: 16),
 
-              const Text('Password',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 14)),
+              const Text(
+                'Password',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+
               const SizedBox(height: 8),
+
               TextField(
                 controller: passwordController,
                 obscureText: true,
@@ -190,47 +256,61 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                 decoration: InputDecoration(
                   hintText: '••••••••',
                   filled: true,
-                  fillColor: const Color(0xFFF9FAFB),
+                  fillColor:
+                      const Color(0xFFF9FAFB),
+
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide:
-                        BorderSide(color: Colors.grey.shade200),
+                    borderRadius:
+                        BorderRadius.circular(10),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide:
-                        BorderSide(color: Colors.grey.shade200),
+
+                  contentPadding:
+                      const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
                   ),
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 14),
                 ),
               ),
+
               const SizedBox(height: 28),
 
               SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: loading ? null : _login,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0D63D1),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    elevation: 0,
+                  onPressed:
+                      loading ? null : _login,
+
+                  style:
+                      ElevatedButton.styleFrom(
+                    backgroundColor:
+                        const Color(0xFF0D63D1),
+
+                    shape:
+                        RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(10),
+                    ),
                   ),
+
                   child: loading
                       ? const SizedBox(
                           width: 22,
                           height: 22,
-                          child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white),
+                          child:
+                              CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         )
                       : const Text(
                           'Sign In',
                           style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold),
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight:
+                                FontWeight.bold,
+                          ),
                         ),
                 ),
               ),

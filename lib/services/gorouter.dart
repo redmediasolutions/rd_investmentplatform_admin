@@ -11,55 +11,109 @@ import 'package:go_router/go_router.dart';
 GoRouter createRouter() {
   return GoRouter(
     initialLocation: '/dashboard',
-    redirect: (context, state) {
-      final loggedIn = FirebaseAuth.instance.currentUser != null;
-      final isLoginPage = state.matchedLocation == '/login';
 
-      if (!loggedIn && !isLoginPage) return '/login';
-      if (loggedIn && isLoginPage) return '/dashboard';
+    redirect: (context, state) {
+      final loggedIn =
+          FirebaseAuth.instance.currentUser != null;
+
+      final isLoginPage =
+          state.matchedLocation == '/login';
+
+      if (!loggedIn && !isLoginPage) {
+        return '/login';
+      }
+
+      if (loggedIn && isLoginPage) {
+        return '/dashboard';
+      }
+
       return null;
     },
+
     refreshListenable: GoRouterRefreshStream(
       FirebaseAuth.instance.authStateChanges(),
     ),
+
     routes: [
-      // Login — no sidebar
+
+      // LOGIN
       GoRoute(
         path: '/login',
-        builder: (context, state) => const AdminLoginPage(),
+        pageBuilder: (context, state) =>
+            NoTransitionPage(
+          key: state.pageKey,
+          child: const AdminLoginPage(),
+        ),
       ),
 
-      // All admin pages wrapped in ShellRoute (sidebar)
+      // ADMIN SHELL
       ShellRoute(
-        builder: (context, state, child) => ShellLayout(child: child),
+        builder: (context, state, child) =>
+            ShellLayout(child: child),
+
         routes: [
+
           GoRoute(
             path: '/dashboard',
-            builder: (context, state) => const Dashboard(),
+            pageBuilder: (context, state) =>
+                NoTransitionPage(
+              key: state.pageKey,
+              child: const Dashboard(),
+            ),
           ),
+
           GoRoute(
             path: '/bondlistings',
-            builder: (context, state) => const BondListing(),
+            pageBuilder: (context, state) =>
+                NoTransitionPage(
+              key: state.pageKey,
+              child: const BondListing(),
+            ),
           ),
+
           GoRoute(
             path: '/investors',
-            builder: (context, state) => const Investors(),
+            pageBuilder: (context, state) =>
+                NoTransitionPage(
+              key: state.pageKey,
+              child: const Investors(),
+            ),
           ),
+
           GoRoute(
             path: '/payouts',
-            builder: (context, state) => const Payouts(),
+            pageBuilder: (context, state) =>
+                NoTransitionPage(
+              key: state.pageKey,
+              child: const Payouts(),
+            ),
           ),
+
           // GoRoute(
           //   path: '/support',
-          //   builder: (context, state) => const Support(),
+          //   pageBuilder: (context, state) =>
+          //       NoTransitionPage(
+          //     key: state.pageKey,
+          //     child: const Support(),
+          //   ),
           // ),
+
           // GoRoute(
           //   path: '/reports',
-          //   builder: (context, state) => const Reports(),
+          //   pageBuilder: (context, state) =>
+          //       NoTransitionPage(
+          //     key: state.pageKey,
+          //     child: const Reports(),
+          //   ),
           // ),
+
           // GoRoute(
           //   path: '/settings',
-          //   builder: (context, state) => const Settings(),
+          //   pageBuilder: (context, state) =>
+          //       NoTransitionPage(
+          //     key: state.pageKey,
+          //     child: const Settings(),
+          //   ),
           // ),
         ],
       ),

@@ -1,6 +1,8 @@
 import 'package:care_kapital_webapp_admin/pages/BondsListing/bondlisting_models.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:care_kapital_webapp_admin/services/api_service.dart';
+import 'package:http/http.dart' as http;
 
 class BondController extends ChangeNotifier {
   List<BondModel> allBonds = [];
@@ -58,10 +60,17 @@ class BondController extends ChangeNotifier {
     await fetchBonds();
   }
 
-  Future<void> deleteBond(int id) async {
+Future<void> deleteBond(int id) async {
+  try {
     await ApiService.deleteBond(id);
+
     await fetchBonds();
+
+  } catch (e) {
+    debugPrint('Delete bond error: $e');
+    rethrow;
   }
+}
 
   String formatCrore(double amount) {
     if (amount >= 10000000) return '₹${(amount / 10000000).toStringAsFixed(1)}Cr';

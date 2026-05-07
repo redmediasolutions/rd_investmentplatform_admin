@@ -67,15 +67,33 @@ class ApiService {
     }
   }
 
-  static Future<void> deleteBond(int id) async {
-    final response = await http.delete(
-      Uri.parse('$baseUrl/bonds/$id'),
-      headers: await _headers(),
-    );
-    if (response.statusCode != 200) {
-      throw Exception('Failed to delete bond: ${response.body}');
-    }
+static Future<void> deleteBond(int id) async {
+  final user = FirebaseAuth.instance.currentUser;
+
+  if (user == null) {
+    throw Exception('User not logged in');
   }
+
+  final token = await user.getIdToken(true);
+
+  final response = await http.delete(
+    Uri.parse('$baseUrl/bonds/$id'),
+    headers: {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    },
+  );
+
+  debugPrint('DELETE STATUS: ${response.statusCode}');
+  debugPrint('DELETE BODY: ${response.body}');
+
+  if (response.statusCode < 200 ||
+      response.statusCode >= 300) {
+    throw Exception(
+      'Delete failed (${response.statusCode}): ${response.body}',
+    );
+  }
+}
 
 
 // ── INVESTORS ──────────────────────────────────────────
