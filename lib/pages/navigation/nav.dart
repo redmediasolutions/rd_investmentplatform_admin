@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:care_kapital_webapp_admin/pages/BondsListing/bond_listing.dart';
-import 'package:care_kapital_webapp_admin/pages/Investors/investors.dart';
+import 'package:care_kapital_webapp_admin/pages/investors/investors.dart';
 import 'package:care_kapital_webapp_admin/pages/dashboard/dashboard.dart';
 import 'package:care_kapital_webapp_admin/pages/navigation/shell.dart';
 import 'package:care_kapital_webapp_admin/pages/payouts/payouts.dart';
