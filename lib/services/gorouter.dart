@@ -1,7 +1,7 @@
 import 'package:care_kapital_webapp_admin/auth/login.dart';
 import 'package:care_kapital_webapp_admin/pages/BondsListing/bond_listing.dart';
 import 'package:care_kapital_webapp_admin/pages/dashboard/dashboard.dart';
-import 'package:care_kapital_webapp_admin/pages/investors/investors.dart';
+import 'package:care_kapital_webapp_admin/pages/Investors/investors.dart';
 import 'package:care_kapital_webapp_admin/pages/payouts/payouts.dart';
 import 'package:care_kapital_webapp_admin/services/shell.dart';
 import 'package:firebase_auth/firebase_auth.dart';
