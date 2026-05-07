@@ -6,14 +6,14 @@ import 'package:care_kapital_webapp_admin/pages/investors/userprofilecard.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class Investors extends StatefulWidget {
-  const Investors({super.key});
+class investors extends StatefulWidget {
+  const investors({super.key});
 
   @override
-  State<Investors> createState() => _InvestorsState();
+  State<investors> createState() => _investorsState();
 }
 
-class _InvestorsState extends State<Investors> {
+class _investorsState extends State<investors> {
   final InvestorController _controller = InvestorController();
   String _selectedStatus = 'all';
 

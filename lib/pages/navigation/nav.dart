@@ -53,7 +53,7 @@ final GoRouter appRouter = GoRouter(
         ),
          GoRoute(
           path: '/investors',
-           builder: (context, state) => Investors(),
+           builder: (context, state) => investors(),
         ),
           GoRoute(
           path: '/payouts',
