@@ -1,4 +1,4 @@
-import 'package:care_kapital_webapp_admin/pages/Investors/investors_models.dart';
+import 'package:care_kapital_webapp_admin/pages/investors/investors_models.dart';
 import 'package:flutter/material.dart';
 import 'package:care_kapital_webapp_admin/services/api_service.dart';
 

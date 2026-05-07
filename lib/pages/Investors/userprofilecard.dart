@@ -1,6 +1,6 @@
-import 'package:care_kapital_webapp_admin/pages/Investors/assign_bond_page.dart';
-import 'package:care_kapital_webapp_admin/pages/Investors/investors_models.dart';
-import 'package:care_kapital_webapp_admin/pages/Investors/investorsprofile.dart';
+import 'package:care_kapital_webapp_admin/pages/investors/assign_bond_page.dart';
+import 'package:care_kapital_webapp_admin/pages/investors/investors_models.dart';
+import 'package:care_kapital_webapp_admin/pages/investors/investorsprofile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
