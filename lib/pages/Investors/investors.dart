@@ -15,7 +15,7 @@ class Investors extends StatefulWidget {
 
 class _InvestorsState extends State<Investors> {
   final InvestorController _controller = InvestorController();
-  String _selectedStatus = 'all';
+  final String _selectedStatus = 'all';
 
   @override
 

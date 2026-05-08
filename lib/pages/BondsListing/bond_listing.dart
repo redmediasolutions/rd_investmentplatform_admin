@@ -14,7 +14,7 @@ class BondListing extends StatefulWidget {
 
 class _BondListingState extends State<BondListing> {
   final BondController _controller = BondController();
-  String _selectedStatus = 'all';
+  final String _selectedStatus = 'all';
 
   @override
   void initState() {

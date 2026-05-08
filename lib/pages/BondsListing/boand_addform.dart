@@ -42,8 +42,11 @@ class _BondAddFormState extends State<BondAddForm> {
     _minInvestment = TextEditingController(text: b?['min_investment']?.toString() ?? '');
     _maxInvestment = TextEditingController(text: b?['max_investment']?.toString() ?? '');
     _totalIssueSize = TextEditingController(text: b?['total_issue_size']?.toString() ?? '');
+    
+    // Ensure existing dates are captured in YYYY-MM-DD
     _listingDate = TextEditingController(text: b?['listing_date'] ?? '');
     _closingDate = TextEditingController(text: b?['closing_date'] ?? '');
+    
     _description = TextEditingController(text: b?['description'] ?? '');
     _category = TextEditingController(text: b?['category'] ?? '');
     _payoutFrequency = b?['payout_frequency'] ?? 'quarterly';
@@ -63,6 +66,7 @@ class _BondAddFormState extends State<BondAddForm> {
     super.dispose();
   }
 
+  /// Corrected Date Picker to ensure YYYY-MM-DD format
   Future<void> _pickDate(TextEditingController controller) async {
     final picked = await showDatePicker(
       context: context,
@@ -79,31 +83,53 @@ class _BondAddFormState extends State<BondAddForm> {
       },
     );
     if (picked != null) {
+      // Database standard: YYYY-MM-DD
       controller.text =
           '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
     }
   }
 
+
+
+  String _formatDateForSql(String date) {
+  if (date.isEmpty) return "";
+  // If date contains '/', it's likely DD/MM/YYYY
+  if (date.contains('/')) {
+    final parts = date.split('/');
+    if (parts.length == 3) {
+      // Re-arrange to YYYY-MM-DD
+      return "${parts[2]}-${parts[1].padLeft(2, '0')}-${parts[0].padLeft(2, '0')}";
+    }
+  }
+  return date; // Already in correct format or empty
+}
+
   void _submit() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _submitting = true);
     try {
-      await widget.onSubmit({
+      // Map construction for the API
+      final Map<String, dynamic> bondData = {
         'bond_name': _bondName.text.trim(),
         'issuer': _issuer.text.trim(),
-        'interest_rate': double.tryParse(_interestRate.text) ?? 0,
+        'interest_rate': double.tryParse(_interestRate.text) ?? 0.0,
         'maturity_period': int.tryParse(_maturityPeriod.text) ?? 0,
-        'min_investment': double.tryParse(_minInvestment.text) ?? 0,
-        'max_investment': double.tryParse(_maxInvestment.text) ?? 0,
+        'min_investment': double.tryParse(_minInvestment.text) ?? 0.0,
+        'max_investment': double.tryParse(_maxInvestment.text) ?? 0.0,
         'payout_frequency': _payoutFrequency,
         'risk_level': _riskLevel,
         'category': _category.text.trim(),
         'status': _status,
-        'total_issue_size': double.tryParse(_totalIssueSize.text) ?? 0,
-        'listing_date': _listingDate.text.trim(),
-        'closing_date': _closingDate.text.trim(),
+        'total_issue_size': double.tryParse(_totalIssueSize.text) ?? 0.0,
+      // SANITIZE DATES HERE
+      'listing_date': _formatDateForSql(_listingDate.text.trim()),
+      'closing_date': _formatDateForSql(_closingDate.text.trim()),
         'description': _description.text.trim(),
-      });
+        // IMPORTANT: Backend likely requires existing amount_raised for PUT requests
+        'amount_raised': widget.existingBond?['amount_raised'] ?? 0.0,
+      };
+
+      await widget.onSubmit(bondData);
       if (mounted) context.pop();
     } catch (e) {
       if (mounted) {
@@ -162,7 +188,6 @@ class _BondAddFormState extends State<BondAddForm> {
               ),
             ),
             
-            // Scrollable Content
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(32),
@@ -187,12 +212,8 @@ class _BondAddFormState extends State<BondAddForm> {
                               (v) => setState(() => _riskLevel = v!))),
                       _row(
                           _field('Market Category', _category, hint: 'Corporate / Govt'),
-                          _dropdown(
-  'Trading Status',
-  _status,
-  ['active', 'inactive'],
-  (v) => setState(() => _status = v!),
-)),
+                          _dropdown('Trading Status', _status, ['active', 'inactive'],
+                              (v) => setState(() => _status = v!))),
                       _row(
                           _field('Total Issue (₹)', _totalIssueSize, isNumber: true, hint: '1,00,00,000'),
                           _datePicker('Live Date', _listingDate)),
@@ -248,6 +269,8 @@ class _BondAddFormState extends State<BondAddForm> {
     );
   }
 
+  // --- UI Helper Widgets ---
+
   Widget _row(Widget left, Widget right) => Padding(
         padding: const EdgeInsets.only(bottom: 20),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -291,7 +314,7 @@ class _BondAddFormState extends State<BondAddForm> {
         Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF374151))),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          initialValue: value,
+          value: value,
           icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
           decoration: InputDecoration(
             filled: true,
@@ -301,7 +324,9 @@ class _BondAddFormState extends State<BondAddForm> {
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
           items: options
-              .map((o) => DropdownMenuItem(value: o, child: Text(o[0].toUpperCase() + o.substring(1), style: const TextStyle(fontSize: 14))))
+              .map((o) => DropdownMenuItem(
+                  value: o,
+                  child: Text(o[0].toUpperCase() + o.substring(1), style: const TextStyle(fontSize: 14))))
               .toList(),
           onChanged: onChanged,
         ),

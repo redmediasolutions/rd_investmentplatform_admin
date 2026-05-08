@@ -245,15 +245,15 @@ static Future<void> updateBondInvestment({
   double? amount,
   String? status,
 }) async {
+  final body = <String, dynamic>{};
+  if (amount != null) body['investment_amount'] = amount;
+  if (status != null) body['status'] = status;
+
   final response = await http.put(
     Uri.parse('$baseUrl/admin/bond-investments/$id'),
     headers: await _headers(),
-    body: jsonEncode({
-      "investment_amount": ?amount,
-      "status": ?status,
-    }),
+    body: jsonEncode(body),
   );
-
   if (response.statusCode != 200) {
     throw Exception('Failed to update: ${response.body}');
   }
