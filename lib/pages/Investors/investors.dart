@@ -1,5 +1,4 @@
 import 'package:care_kapital_webapp_admin/components/investor_kpiboxes.dart';
-import 'package:care_kapital_webapp_admin/components/searchbar.dart';
 import 'package:care_kapital_webapp_admin/pages/Investors/create_investor_dialog.dart';
 import 'package:care_kapital_webapp_admin/pages/Investors/investor_controller.dart';
 import 'package:care_kapital_webapp_admin/pages/Investors/userprofilecard.dart';

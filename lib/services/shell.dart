@@ -27,6 +27,11 @@ class _Sidebar extends StatelessWidget {
     _NavItem(icon: Icons.trending_up, label: 'Bond Listings', path: '/bondlistings'),
     _NavItem(icon: Icons.people_outline, label: 'Investors', path: '/investors'),
     _NavItem(icon: Icons.attach_money_outlined, label: 'Payouts', path: '/payouts'),
+    _NavItem(
+  icon: Icons.request_page_outlined,
+  label: 'Payout Requests',
+  path: '/payout-requests',
+),
     // _NavItem(icon: Icons.confirmation_number_outlined, label: 'Support Tickets', path: '/support'),
     // _NavItem(icon: Icons.bar_chart_outlined, label: 'Reports', path: '/reports'),
     // _NavItem(icon: Icons.settings_outlined, label: 'Settings', path: '/settings'),

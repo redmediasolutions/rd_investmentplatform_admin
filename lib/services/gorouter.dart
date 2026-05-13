@@ -2,6 +2,7 @@ import 'package:care_kapital_webapp_admin/auth/login.dart';
 import 'package:care_kapital_webapp_admin/pages/BondsListing/bond_listing.dart';
 import 'package:care_kapital_webapp_admin/pages/dashboard/dashboard.dart';
 import 'package:care_kapital_webapp_admin/pages/Investors/investors.dart';
+import 'package:care_kapital_webapp_admin/pages/payouts/payout_requests_page.dart';
 import 'package:care_kapital_webapp_admin/pages/payouts/payouts.dart';
 import 'package:care_kapital_webapp_admin/services/shell.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,18 +14,16 @@ GoRouter createRouter() {
     initialLocation: '/bondlistings',
 
     redirect: (context, state) {
-      final loggedIn =
-          FirebaseAuth.instance.currentUser != null;
+      final loggedIn = FirebaseAuth.instance.currentUser != null;
 
-      final isLoginPage =
-          state.matchedLocation == '/login';
+      final isLoginPage = state.matchedLocation == '/login';
 
       if (!loggedIn && !isLoginPage) {
         return '/login';
       }
 
       if (loggedIn && isLoginPage) {
-        return '/dashboard';
+        return '/bondlistings';
       }
 
       return null;
@@ -35,37 +34,27 @@ GoRouter createRouter() {
     ),
 
     routes: [
-
       // LOGIN
       GoRoute(
         path: '/login',
         pageBuilder: (context, state) =>
-            NoTransitionPage(
-          key: state.pageKey,
-          child: const AdminLoginPage(),
-        ),
+            NoTransitionPage(key: state.pageKey, child: const AdminLoginPage()),
       ),
 
       // ADMIN SHELL
       ShellRoute(
-        builder: (context, state, child) =>
-            ShellLayout(child: child),
+        builder: (context, state, child) => ShellLayout(child: child),
 
         routes: [
-
-          GoRoute(
-            path: '/dashboard',
-            pageBuilder: (context, state) =>
-                NoTransitionPage(
-              key: state.pageKey,
-              child: const Dashboard(),
-            ),
-          ),
+          // GoRoute(
+          //   path: '/dashboard',
+          //   pageBuilder: (context, state) =>
+          //       NoTransitionPage(key: state.pageKey, child: const Dashboard()),
+          // ),
 
           GoRoute(
             path: '/bondlistings',
-            pageBuilder: (context, state) =>
-                NoTransitionPage(
+            pageBuilder: (context, state) => NoTransitionPage(
               key: state.pageKey,
               child: const BondListing(),
             ),
@@ -74,21 +63,19 @@ GoRouter createRouter() {
           GoRoute(
             path: '/investors',
             pageBuilder: (context, state) =>
-                NoTransitionPage(
-              key: state.pageKey,
-              child: const Investors(),
-            ),
+                NoTransitionPage(key: state.pageKey, child: const Investors()),
           ),
 
           GoRoute(
             path: '/payouts',
             pageBuilder: (context, state) =>
-                NoTransitionPage(
-              key: state.pageKey,
-              child: const Payouts(),
-            ),
+                NoTransitionPage(key: state.pageKey, child: const Payouts()),
           ),
 
+          GoRoute(
+            path: '/payout-requests',
+            builder: (context, state) => const PayoutRequestsPage(),
+          ),
           // GoRoute(
           //   path: '/support',
           //   pageBuilder: (context, state) =>

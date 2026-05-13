@@ -315,4 +315,37 @@ static Future<Map<String, dynamic>> createInvestor({
   final error = jsonDecode(response.body);
   throw Exception(error['message'] ?? 'Failed to create investor');
 }
+
+
+// ── PAYOUT REQUESTS (admin) ────────────────────────────
+
+static Future<Map<String, dynamic>> getAdminPayoutRequests({
+  String status = 'all',
+}) async {
+  final uri = Uri.parse('$baseUrl/admin/payout-requests').replace(
+    queryParameters: status != 'all' ? {'status': status} : {},
+  );
+  final response = await http.get(uri, headers: await _headers());
+  if (response.statusCode == 200) return jsonDecode(response.body);
+  throw Exception('Failed to load requests');
+}
+
+static Future<void> reviewPayoutRequest({
+  required int id,
+  required String status, // 'approved' or 'rejected'
+  String? adminNote,
+}) async {
+  final response = await http.patch(
+    Uri.parse('$baseUrl/admin/payout-requests/$id'),
+    headers: await _headers(),
+    body: jsonEncode({
+      'status': status,
+      if (adminNote != null && adminNote.isNotEmpty) 'admin_note': adminNote,
+    }),
+  );
+  if (response.statusCode != 200) {
+    final error = jsonDecode(response.body);
+    throw Exception(error['message'] ?? 'Failed to review request');
+  }
+}
 }
